@@ -4,6 +4,12 @@ I used a preconfigured AWS training environment to compare access as `devuser`, 
 
 [Full detailed report](report.pdf) · [All 38 original images](assets/)
 
+## Lab architecture
+
+![Lab architecture showing devuser, DeveloperGroup, role assumption, and three S3 buckets](assets/S3-Resource-Based-Policies-Lab-20261030074704.png)
+
+Original architecture diagram from the lab notes.
+
 ## Work covered
 
 - Explored EC2, S3 and IAM access as `devuser`.
