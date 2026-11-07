@@ -1,28 +1,36 @@
 # AWS S3 and IAM access-control lab
 
-I compared Amazon S3 access as an IAM user and as assumed-role sessions in a preconfigured AWS training environment. The purpose was to understand why creating a bucket does not grant object-write access, and how a bucket policy can authorize a role.
+I used a preconfigured AWS training environment to compare access as `devuser`, `BucketsAccessRole`, and `OtherBucketAccessRole`. The lab examines identity policies, role assumption, S3 bucket policies, and the difference between bucket-level and object-level permissions.
 
-## Environment and method
+[Full detailed report](report.pdf) · [All 38 original images](assets/)
 
-The lab supplied `devuser`, `DeveloperGroup`, IAM roles, and three S3 buckets. I used the AWS Management Console to attempt operations, switch roles, and inspect policies. The evidence spans several training sessions; it is not a single uninterrupted test run. Account identifiers and generated bucket names are removed from the publication copies.
+## Work covered
 
-## Recorded results
+- Explored EC2, S3 and IAM access as `devuser`.
+- Inspected `DeveloperGroupPolicy` and compared bucket creation with object upload.
+- Recorded denied object reads and uploads.
+- Assumed `BucketsAccessRole`, downloaded `Image2.jpg` from bucket1, and compared IAM group visibility before and after switching roles.
+- Inspected role permissions, the trust relationship and the bucket2 resource policy.
+- Investigated the bucket3 policy principal and recorded a successful upload under `OtherBucketAccessRole`.
 
-| Principal and test | Result | Evidence |
-| --- | --- | --- |
-| `devuser`: create a bucket | Allowed | Written observation and original capture reviewed |
-| `devuser`: upload a local file | Denied | [Upload result](assets/02-user-upload-denied.png); [group policy](assets/01-user-group-policy.png) |
-| `devuser`: read an object from bucket1 | Denied | Original XML error capture reviewed |
-| `BucketsAccessRole`: download from bucket1 | Allowed | [Completed download](assets/03-role-object-download.png) |
-| `BucketsAccessRole`: upload to bucket2 | Allowed | [Upload result](assets/05-role-bucket2-upload.png); [earlier bucket2 policy](assets/04-bucket2-policy.png) |
-| `OtherBucketAccessRole`: upload to bucket3 | One file succeeded | [Upload result](assets/07-other-role-bucket3-upload.png); [bucket3 policy](assets/06-bucket3-role-policy.png) |
+## Results
 
-The key finding was that identity policies alone did not describe every access path. The reviewed bucket2 policy granted object access to the role. The bucket3 policy named a different role, matching the principal shown in the later successful upload.
+| Test | Recorded result |
+| --- | --- |
+| `devuser`: create a bucket | Allowed |
+| `devuser`: upload an object | Denied |
+| `devuser`: read a bucket1 object | Denied |
+| `BucketsAccessRole`: download from bucket1 | Allowed |
+| `BucketsAccessRole`: list IAM groups | Denied |
+| `BucketsAccessRole`: upload to bucket2 | Allowed |
+| `OtherBucketAccessRole`: upload to bucket3 | One file succeeded |
 
-## Report and limits
+The key finding was that the role identity policy alone did not describe every access path. The bucket2 policy supplied a resource-based permission path. The bucket3 policy named another role, matching the active principal in the later successful upload capture.
 
-[Full report](report.pdf)
+## Documentation
 
-The report distinguishes screenshots from written observations and explains the separate capture sessions. It does not claim a complete permissions audit, verified CloudTrail history, or successful completion of an unseen grading workflow. The lab's identities, roles, buckets, and policies were supplied by the training environment.
+The expanded report provides the environment, method, step-by-step observations, policy explanations, failures, challenge outcome, lessons, references and a complete image index. All 38 source images are included with their original filenames and bytes, without editing or redaction.
 
-Technical references: [IAM policy evaluation](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html) and [S3 API permissions](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-with-s3-policy-actions.html).
+The captures span several training sessions. The report distinguishes observed results from supplied instructions, example command output and explanatory diagrams. The training environment supplied the initial identities, policies, roles and buckets. A complete second-role policy audit, CloudTrail trace and final grading result are not claimed.
+
+References: [S3 API permissions](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-with-s3-policy-actions.html), [STS AssumeRole](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html), and [IAM policy evaluation](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html).
